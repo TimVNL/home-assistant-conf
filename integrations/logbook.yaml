@@ -1,0 +1,20 @@
+---
+# The logbook integration lets you define the level of logbook activities
+# in Home Assistant.
+#
+# I use this to reduce the number of logbook for specific things,
+# so I can focus on log messages that matter to me.
+#
+logbook:
+  exclude:
+    domains:
+      - automation
+      - updater
+      - update
+    entity_globs:
+      - sensor.weather_*
+    entities:
+      - sun.sun # Don't record sun data
+      - sensor.last_boot # Comes from 'systemmonitor' sensor platform
+      - sensor.date
+      - sensor.date_time_iso

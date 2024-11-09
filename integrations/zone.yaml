@@ -1,0 +1,6 @@
+---
+# This handles the loading of zones
+#
+# https://www.home-assistant.io/docs/zones/
+#
+zone: !include_dir_list ../zones

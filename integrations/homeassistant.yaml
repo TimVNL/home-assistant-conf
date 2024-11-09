@@ -1,0 +1,23 @@
+---
+# Sets up Home Assistant.
+#
+# Basically, everything that doesn't have to be in the
+# main configuration.yaml.
+#
+homeassistant:
+# MOVED to Home Assistant Editor  
+#  name: Home
+#  latitude: 51.982700
+#  longitude: 5.940030
+#  elevation: 33
+#  time_zone: "Europe/Amsterdam"
+#  unit_system: metric
+#  currency: EUR
+#  country: NL
+#  language: nl
+#  internal_url: !secret ha_url
+#  external_url: "!secret ha_url
+# END MOVED to Home Assistant Editor 
+
+  # Lets me customize individual entities
+  customize: !include_dir_named ../customizations/entities

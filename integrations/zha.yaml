@@ -1,0 +1,12 @@
+---
+# The ZHA integration allows you to wirelessly connect many off-the-shelf Zigbee-based devices directly to Home Assistant,
+# using one of the many available Zigbee coordinators.
+# 
+# https://www.home-assistant.io/integrations/zha/
+#
+zha:
+  zigpy_config:
+    ota:
+      otau_directory: /config/zigpy_ota
+      ikea_provider: true
+      ledvance_provider: true

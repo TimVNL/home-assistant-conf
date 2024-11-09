@@ -1,0 +1,349 @@
+---
+# This file is used by the automations editor
+# in the Home Assistant frontend.
+#
+# I personally do not use it, mainly because I like doing this in YAML.
+# However, from time to time, it is helpful to click a bit and see
+# what the frontend makes of it.
+#
+# This file must exist for the frontend Automation editor to work.
+
+- id: '1673088540708'
+  alias: ALL |  Notify if battery sensors are below 15%
+  description: ''
+  use_blueprint:
+    path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+    input:
+      time: 06:00:00
+      day: 0
+      actions:
+      - data:
+          title: Remote battery notification
+          message: The battery of the sensor(s) {{sensors}} is low.
+        action: notify.ntfy_ijsselhome
+      threshold: 15
+      exclude:
+        entity_id: []
+        device_id:
+        - 38b2ed5b5f6dbb87fa0189a7034c42e2
+        - 6ec0900849f02dc7d10343a00b7fc499
+- id: '1673088583112'
+  alias: ALL | AWAY Notify if doors open
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.external_doors
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 10
+  condition:
+  - condition: numeric_state
+    entity_id: zone.home
+    below: 1
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
+  action:
+  - service: notify.ntfy_ijsselhome
+    data:
+      title: DOORS OPEN!
+      message: "{{ expand('binary_sensor.external_doors')\n   | selectattr('state',
+        'eq', 'on') \n   | map(attribute='name') \n   | list \n   | join (', ')\n}}"
+  mode: single
+- id: '1673089001331'
+  alias: ALL | AWAY Turn off lights and fan
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: zone.home
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+    below: 1
+  condition:
+  - condition: state
+    entity_id: input_boolean.guest_mode
+    state: 'off'
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id:
+      - woonkamer
+      - keuken
+      - slaapkamer
+  - service: fan.turn_off
+    data: {}
+    target:
+      entity_id: fan.living_fan
+  - service: notify.ntfy_ijsselhome
+    data:
+      title: Lights and fans turned OFF!
+      message: Everything is OFF
+  mode: single
+- id: '1673089089444'
+  alias: LIVING | TV Light control
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - media_player.living_gtv
+    to: playing
+  - platform: state
+    entity_id:
+    - media_player.living_gtv
+    from: playing
+  condition:
+  - condition: state
+    entity_id: light.living
+    state: 'on'
+  action:
+  - if:
+    - condition: device
+      device_id: 8342a4b6238c16081827c6d9fabf5d56
+      domain: media_player
+      entity_id: media_player.living_gtv
+      type: is_playing
+    then:
+    - service: light.turn_on
+      data:
+        color_temp: 500
+        brightness_pct: 60
+        transition: 5
+      target:
+        entity_id: light.living
+    else:
+    - service: light.turn_on
+      data:
+        color_temp: 500
+        brightness_pct: 90
+        transition: 5
+      target:
+        entity_id: light.living
+  mode: single
+- id: '1673089360287'
+  alias: SLEEPING | Remote
+  description: ''
+  use_blueprint:
+    path: SeanM/zha-aqara-wireless-mini-switch.yaml
+    input:
+      aqara_mini_switch: 5937647fcc7b71f3ed0788688f8e5430
+      button_single_press:
+      - service: light.toggle
+        data:
+          color_temp: 500
+          brightness: 75
+        target:
+          entity_id: light.sleeping
+      button_long_press:
+      - service: light.turn_off
+        data: {}
+        target:
+          area_id:
+          - keuken
+          - woonkamer
+      - service: fan.turn_off
+        data: {}
+        target:
+          entity_id: fan.living_fan
+- id: '1673089386039'
+  alias: SLEEPING Wake-up light Tim
+  description: ''
+  use_blueprint:
+    path: sbyx/wake-up-light-alarm-with-sunrise-effect.yaml
+    input:
+      light_entity: light.sleeping
+      timestamp_sensor: sensor.timv_pixel8_next_alarm
+      manual_time: 06:00:00
+      check_entity: person.tim_veluwenkamp
+      min_mired: 500
+      sunrise_duration: 15
+      start_brightness: 25
+- id: '1673294991733'
+  alias: LIVING | Remote
+  description: ''
+  use_blueprint:
+    path: niro1987/zha_ikea_tradfri_5button_remote_color.yaml
+    input:
+      remote: 0fe589f16ba825fe859ebe088f706a67
+      light: light.living
+- id: '1674221870914'
+  alias: LIVING | FAN Control
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.living_fan_on_off
+    from: 'off'
+    to: 'on'
+  - platform: state
+    entity_id:
+    - zone.home
+    from: '0'
+    alias: Someone comes Home
+  - type: pm25
+    platform: device
+    device_id: f238717dd924719111612bae7b414c39
+    entity_id: sensor.living_fan_pm_2_5
+    domain: sensor
+    above: 36
+    alias: PM 2.5 rises above 36 µg/m³
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    enabled: false
+  - type: pm10
+    platform: device
+    device_id: f238717dd924719111612bae7b414c39
+    entity_id: sensor.living_fan_pm_10
+    domain: sensor
+    above: 51
+    alias: PM10 rises above 51 µg/m³
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    enabled: false
+  - type: pm25
+    platform: device
+    device_id: f238717dd924719111612bae7b414c39
+    entity_id: sensor.living_fan_pm_2_5
+    domain: sensor
+    below: 40
+    alias: PM 2.5 drops below 35 µg/m³
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+    enabled: false
+  - type: pm10
+    platform: device
+    device_id: f238717dd924719111612bae7b414c39
+    entity_id: sensor.living_fan_pm_10
+    domain: sensor
+    below: 50
+    enabled: false
+    alias: PM10 drops below 50 µg/m³
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  condition:
+  - condition: numeric_state
+    entity_id: zone.home
+    above: 0
+    enabled: true
+  - condition: state
+    entity_id: binary_sensor.living_fan_on_off
+    state: 'on'
+  action:
+  - if:
+    - condition: or
+      conditions:
+      - type: is_pm25
+        condition: device
+        device_id: f238717dd924719111612bae7b414c39
+        entity_id: sensor.living_fan_pm_2_5
+        domain: sensor
+        above: 40
+      - type: is_pm10
+        condition: device
+        device_id: f238717dd924719111612bae7b414c39
+        entity_id: sensor.living_fan_pm_10
+        domain: sensor
+        above: 51
+      enabled: false
+    - condition: time
+      after: '17:00:00'
+      before: '19:00:00'
+    then:
+    - type: turn_on
+      device_id: f238717dd924719111612bae7b414c39
+      entity_id: fan.living_fan
+      domain: fan
+    - service: fan.set_percentage
+      data:
+        percentage: 60
+      target:
+        entity_id:
+        - fan.living_fan
+    else:
+    - type: turn_on
+      device_id: f238717dd924719111612bae7b414c39
+      entity_id: fan.living_fan
+      domain: fan
+    - service: fan.set_percentage
+      data:
+        percentage: 20
+      target:
+        entity_id: fan.living_fan
+  mode: single
+- id: '1674649280040'
+  alias: HA | Create weekly backup
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.ha_backup
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: hassio.backup_full
+    data: {}
+  mode: single
+- id: '1713618913876'
+  alias: New automation
+  description: ''
+  use_blueprint:
+    path: sandervv/ZHA - Hue Dimmer Fully Configurable.yaml
+    input:
+      remote: 4cde32b8ece4de099bce0bd78b9603d6
+      button_on_short_press:
+      - metadata: {}
+        data: {}
+        action: light.turn_on
+        target:
+          entity_id: light.office_ambient
+      button_on_long_press:
+      - metadata: {}
+        data: {}
+        target:
+          entity_id: light.office_ceiling
+        action: light.turn_on
+      button_off_short_press:
+      - metadata: {}
+        data: {}
+        action: light.turn_off
+        target:
+          entity_id: light.office_ambient
+      button_off_long_press:
+      - metadata: {}
+        data: {}
+        target:
+          entity_id: light.office_ceiling
+        action: light.turn_off
+- id: '1724405851967'
+  alias: ALL | Washing NOTIFY
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.wasmachine_washer_machine_state
+    from: run
+    to: stop
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - action: notify.ntfy_ijsselhome
+    data:
+      message: Washing Machine is DONE!
+  mode: single

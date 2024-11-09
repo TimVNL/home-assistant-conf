@@ -1,0 +1,6 @@
+- name: "ntfy-ijsselhome"
+  platform: ntfy
+  url: !secret ntfy_ijsselhome_url
+  token: !secret ntfy_ijsselhome_token
+  topic: ijsselhome-ha
+  icon: https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Home_Assistant_Logo.svg/240px-Home_Assistant_Logo.svg.png
