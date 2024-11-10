@@ -1,0 +1,16 @@
+# Make sure there is an shedule helper name ha_backup
+alias: HA | Backup
+description: ""
+triggers:
+  - trigger: state
+    entity_id:
+      - schedule.ha_backup
+    to: "on"
+conditions: []
+actions:
+  - action: hassio.backup_full
+    metadata: {}
+    data:
+      compressed: true
+      homeassistant_exclude_database: false
+mode: single
