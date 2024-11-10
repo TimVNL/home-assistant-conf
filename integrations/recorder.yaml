@@ -20,8 +20,10 @@ recorder:
       - updater
       - update
     entity_globs:
-      - sensor.weather_*
-      - sensor.date*
+      - sensor.weather_* # Don't record weather data
+      - sensor.date* # Don't record date and time data
+      - sensor.sun*  # Don't record sun data
+      - button.*_identify # Don't record when a identify botton is pressed
     entities:
       - sun.sun # Don't record sun data
       - sensor.moon_phase
