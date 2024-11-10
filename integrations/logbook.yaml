@@ -13,8 +13,7 @@ logbook:
       - update
     entity_globs:
       - sensor.weather_*
+      - sensor.date*
     entities:
       - sun.sun # Don't record sun data
       - sensor.last_boot # Comes from 'systemmonitor' sensor platform
-      - sensor.date
-      - sensor.date_time_iso

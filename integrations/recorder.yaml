@@ -12,3 +12,19 @@ recorder:
 
   # Disable auto purging, I'm doing this using automations instead
   auto_purge: false
+
+  # Some cleanup for entities where keeping data is not that important 
+  exclude:
+    domains:
+      - automation
+      - updater
+      - update
+    entity_globs:
+      - sensor.weather_*
+      - sensor.date*
+    entities:
+      - sun.sun # Don't record sun data
+      - sensor.moon_phase
+    event_types:
+      - call_service # Don't record service calls
+      - zha_event # Don't record ZHA calls, to spammy
